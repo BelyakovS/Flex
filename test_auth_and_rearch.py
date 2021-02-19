@@ -1,13 +1,10 @@
-import pytest
+from conftest import login, passw
 
-from conftest import url, login, passw
-import conftest
-
-# Переменные
 org_name = 'Беляков'
 
 class TestMainPage1():
 
+    # Авторизация
     def test_auth(self, browser):
 
         browser.find_by_id('basic_tenant').click()
@@ -20,7 +17,7 @@ class TestMainPage1():
 
         # assert browser.is_text_present('Ошибка авторизации')
 
-
+    # Поиск аккаунтов по названию
     def test_search_acc(self, browser):
         browser.find_by_text('Поиск').click()
 

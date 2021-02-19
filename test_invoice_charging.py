@@ -1,41 +1,39 @@
-from conftest import headers, url_api
+from conftest import headers, url_charges, url_invoicing
 import requests
 
-period_from = '2020-08-31'
 agreement_id = 5335
 
-body_charging = {
-    'tariffTypeId': 9,
-    'tariffStatusId': 9,
-    'serviceTypeId': 9,
-    'name': "test14",
-    'currencyId': 9,
-    'priceTypeId': 9,
-    'priceUnitId': 9
+body = {
+  "agreementId": agreement_id,
+  "onDate": "2021-01-01T00:00:00.000Z"
 }
-
 
 class TestChargingInvoicing():
 
   def test_remove_old(self, connect):
     cur = connect.cursor()
 
-    # cur.execute("SELECT * from qa.dic WHERE dic_type_id = %s", (dt_id,))
-
     # Удаление начислений и инвойсов
-    cur.execute("""select * from qa.service_charge 
-                    where service_id in (select id from qa.service where agreement_id=(%s)) 
-                    and period_from > (%s)
-                    order by transaction_id desc;""", (agreement_id, period_from,))
+    cur.execute("""
+        delete from qa.balance_transaction
+        where id in
+        (select transaction_id from qa.service_charge
+        where service_id in
+        (select id from qa.service where agreement_id=%(agreement_id)s;
+        delete from qa.service_charge where service_id in (select id from qa.service where agreement_id=%(agreement_id)s;
+        delete from qa.invoice where agreement_id=%(agreement_id)s""", {'agreement_id': agreement_id})
 
-    # Печать значений из Селекта (не актуально)
-    #rows = cur.fetchall()
-    # print('\n')
-    # for row in rows:
-    #     print(row)
+
 
   def test_create_new_charging(self):
-      response = requests.post(url_api, json=body_charging, headers=headers)
+      response = requests.post(url_charges, json=body, headers=headers)
+
+      print(response.status_code)
+      print(response.text)
+      assert response.status_code == 200
+
+  def test_create_new_invoicing(self):
+      response = requests.post(url_charges, json=body, headers=headers)
 
       print(response.status_code)
       print(response.text)
